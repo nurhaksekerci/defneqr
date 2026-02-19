@@ -27,14 +27,23 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   console.log('   Client ID:', process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...');
   console.log('   Callback URL:', process.env.GOOGLE_CALLBACK_URL);
   
+  const googleConfig = {
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback',
+    scope: ['profile', 'email'],
+    passReqToCallback: false
+  };
+  
+  console.log('📋 Final Google Strategy Config:');
+  console.log('   clientID:', googleConfig.clientID?.substring(0, 30) + '...');
+  console.log('   callbackURL:', googleConfig.callbackURL);
+  console.log('   callbackURL length:', googleConfig.callbackURL?.length);
+  console.log('   callbackURL bytes:', Buffer.from(googleConfig.callbackURL || '').toString('hex').substring(0, 100));
+  
   passport.use(
     new GoogleStrategy(
-      {
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback',
-        scope: ['profile', 'email']
-      },
+      googleConfig,
       async (accessToken, refreshToken, profile, done) => {
         try {
           console.log('✅ Google OAuth başarılı! Profile alındı:', profile.id);
