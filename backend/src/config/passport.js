@@ -125,12 +125,11 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           return done(error, null);
         }
       }
-    )
-  );
-
-  // Wrap OAuth2 client to log token exchange requests
-  const originalGetOAuthAccessToken = googleStrategy._oauth2.getOAuthAccessToken.bind(googleStrategy._oauth2);
-  googleStrategy._oauth2.getOAuthAccessToken = function(code, params, callback) {
+    );
+  
+    // Wrap OAuth2 client to log token exchange requests
+    const originalGetOAuthAccessToken = googleStrategy._oauth2.getOAuthAccessToken.bind(googleStrategy._oauth2);
+    googleStrategy._oauth2.getOAuthAccessToken = function(code, params, callback) {
     console.log('========================================');
     console.log('🔐 STEP 3.5: Token Exchange Request to Google');
     console.log('   Code (first 30 chars):', code?.substring(0, 30) + '...');
