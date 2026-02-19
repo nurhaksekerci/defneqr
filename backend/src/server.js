@@ -72,15 +72,22 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // XSS Protection & Input Sanitization
-// IMPORTANT: Skip sanitization for OAuth routes to preserve authorization codes
+// IMPORTANT: Only sanitize user input (POST/PUT/PATCH body and query params)
+// Skip sanitization for OAuth routes and GET requests to avoid breaking data
 const { sanitizeRequest } = require('./middleware/sanitize.middleware');
 app.use((req, res, next) => {
-  // Skip sanitization for OAuth callback routes
+  // Skip sanitization for OAuth callback routes (authorization codes must be preserved)
   if (req.path.includes('/auth/google')) {
-    console.log('⚠️  Skipping sanitization for OAuth route:', req.path);
     return next();
   }
-  sanitizeRequest(req, res, next);
+  
+  // Only sanitize body for POST/PUT/PATCH/DELETE (user input)
+  // GET requests only have query params which are already URL-decoded by Express
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+    return sanitizeRequest(req, res, next);
+  }
+  
+  next();
 });
 
 // Session configuration for OAuth
