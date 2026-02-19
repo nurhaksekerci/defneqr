@@ -8,7 +8,8 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install ALL dependencies (including devDependencies)
-RUN npm ci
+# Use npm install instead of npm ci for test environment to handle lock file sync issues
+RUN npm install
 
 # Copy source code
 COPY . .
