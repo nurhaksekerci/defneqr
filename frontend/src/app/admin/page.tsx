@@ -102,15 +102,8 @@ export default function AdminDashboard() {
 
   const loadHealth = async () => {
     try {
-      // Health endpoint is on root, not under /api
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
-      const response = await fetch(`${API_BASE}/health/detailed`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('token')}`,
-        },
-      });
-      const data = await response.json();
-      setHealth(data);
+      const response = await api.get('/health/detailed');
+      setHealth(response.data);
     } catch (error) {
       console.error('Failed to load health:', error);
       setHealth(null);
