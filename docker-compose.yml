@@ -36,7 +36,7 @@ services:
       JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
       FRONTEND_URL: ${FRONTEND_URL:-https://defneqr.com}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.defneqr.com/api}
-      UPLOAD_DIR: /app/uploads
+      UPLOAD_DIR: /app/public/uploads
       MAX_FILE_SIZE: ${MAX_FILE_SIZE:-5242880}
       # Sentry (optional)
       SENTRY_DSN: ${SENTRY_DSN:-}

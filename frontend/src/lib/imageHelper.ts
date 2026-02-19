@@ -9,9 +9,9 @@ export const getImageUrl = (imagePath: string | undefined | null): string | unde
     return imagePath;
   }
   
-  // Backend base URL'i al
+  // Backend base URL'i al (trailing /api'yi kaldır)
   const backendUrl = process.env.NEXT_PUBLIC_API_URL 
-    ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '')
+    ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api$/, '')
     : 'http://localhost:5000';
   
   // Relative path ise backend URL ile birleştir

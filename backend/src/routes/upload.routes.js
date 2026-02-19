@@ -119,8 +119,9 @@ router.post('/image',
         : req.file.filename;
       
       // Use environment variable for backend URL (for correct URL behind reverse proxy)
+      // Remove trailing /api from NEXT_PUBLIC_API_URL (e.g., https://api.defneqr.com/api -> https://api.defneqr.com)
       const backendBaseUrl = process.env.NEXT_PUBLIC_API_URL 
-        ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '')
+        ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api$/, '')
         : `${req.protocol}://${req.get('host')}`;
       const fileUrl = `${backendBaseUrl}/uploads/${finalFilename}`;
       
