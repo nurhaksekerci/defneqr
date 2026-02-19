@@ -23,6 +23,9 @@ const {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy (Nginx reverse proxy için gerekli)
+app.set('trust proxy', 1);
+
 // Initialize Sentry (must be first)
 initializeSentry(app);
 
