@@ -243,7 +243,7 @@ exports.createProductValidation = [
     .isLength({ max: 1000 }).withMessage('Açıklama maksimum 1000 karakter olabilir')
     .customSanitizer(sanitizeHtml),
   
-  body('price')
+  body('basePrice')
     .notEmpty().withMessage('Fiyat gereklidir')
     .isFloat({ min: 0 }).withMessage('Fiyat 0 veya daha büyük olmalıdır'),
   
