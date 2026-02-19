@@ -32,7 +32,7 @@ describe('Sanitizer Utils - Unit Tests', () => {
     it('should normalize and validate emails', () => {
       const testCases = [
         { input: 'TEST@EXAMPLE.COM', expected: 'test@example.com' },
-        { input: 'user+tag@example.com', expected: 'user@example.com' }
+        { input: 'user+tag@example.com', expected: 'user+tag@example.com' } // normalizeEmail no longer removes + tags
       ];
 
       testCases.forEach(({ input, expected }) => {
