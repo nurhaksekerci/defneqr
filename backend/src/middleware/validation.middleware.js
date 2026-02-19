@@ -1,5 +1,6 @@
 const { body, param, query, validationResult } = require('express-validator');
-const { sanitizeHtml, sanitizeEmail, sanitizeUrl, sanitizePhone } = require('../utils/sanitizer');
+// DISABLED: HTML entity encoding breaks data
+// const { sanitizeHtml, sanitizeEmail, sanitizeUrl, sanitizePhone } = require('../utils/sanitizer');
 
 /**
  * Middleware to handle validation errors
@@ -28,20 +29,17 @@ exports.registerValidation = [
     .notEmpty().withMessage('Email gereklidir')
     .isEmail().withMessage('Geçerli bir email adresi girin')
     .normalizeEmail()
-    .customSanitizer(sanitizeEmail),
   
   body('fullName')
     .trim()
     .notEmpty().withMessage('Ad Soyad gereklidir')
     .isLength({ min: 2, max: 100 }).withMessage('Ad Soyad 2-100 karakter olmalıdır')
-    .customSanitizer(sanitizeHtml),
   
   body('username')
     .optional()
     .trim()
     .isLength({ min: 3, max: 30 }).withMessage('Kullanıcı adı 3-30 karakter olmalıdır')
     .matches(/^[a-zA-Z0-9_-]+$/).withMessage('Kullanıcı adı sadece harf, rakam, tire ve alt çizgi içerebilir')
-    .customSanitizer(sanitizeHtml),
   
   body('password')
     .notEmpty().withMessage('Şifre gereklidir')
@@ -104,36 +102,30 @@ exports.createRestaurantValidation = [
     .trim()
     .notEmpty().withMessage('Restoran adı gereklidir')
     .isLength({ min: 2, max: 100 }).withMessage('Restoran adı 2-100 karakter olmalıdır')
-    .customSanitizer(sanitizeHtml),
   
   body('slug')
     .optional()
     .trim()
     .isLength({ min: 2, max: 100 }).withMessage('Slug 2-100 karakter olmalıdır')
     .matches(/^[a-z0-9-]+$/).withMessage('Slug sadece küçük harf, rakam ve tire içerebilir')
-    .customSanitizer(sanitizeHtml),
   
   body('description')
     .optional()
     .trim()
     .isLength({ max: 500 }).withMessage('Açıklama maksimum 500 karakter olabilir')
-    .customSanitizer(sanitizeHtml),
   
   body('phone')
     .optional()
     .trim()
-    .customSanitizer(sanitizePhone),
   
   body('address')
     .optional()
     .trim()
     .isLength({ max: 200 }).withMessage('Adres maksimum 200 karakter olabilir')
-    .customSanitizer(sanitizeHtml),
   
   body('logoUrl')
     .optional()
     .trim()
-    .customSanitizer(sanitizeUrl),
   
   handleValidationErrors
 ];
@@ -146,29 +138,24 @@ exports.updateRestaurantValidation = [
     .optional()
     .trim()
     .isLength({ min: 2, max: 100 }).withMessage('Restoran adı 2-100 karakter olmalıdır')
-    .customSanitizer(sanitizeHtml),
   
   body('description')
     .optional()
     .trim()
     .isLength({ max: 500 }).withMessage('Açıklama maksimum 500 karakter olabilir')
-    .customSanitizer(sanitizeHtml),
   
   body('phone')
     .optional()
     .trim()
-    .customSanitizer(sanitizePhone),
   
   body('address')
     .optional()
     .trim()
     .isLength({ max: 200 }).withMessage('Adres maksimum 200 karakter olabilir')
-    .customSanitizer(sanitizeHtml),
   
   body('logoUrl')
     .optional()
     .trim()
-    .customSanitizer(sanitizeUrl),
   
   handleValidationErrors
 ];
@@ -181,13 +168,11 @@ exports.createCategoryValidation = [
     .trim()
     .notEmpty().withMessage('Kategori adı gereklidir')
     .isLength({ min: 2, max: 100 }).withMessage('Kategori adı 2-100 karakter olmalıdır')
-    .customSanitizer(sanitizeHtml),
   
   body('description')
     .optional()
     .trim()
     .isLength({ max: 500 }).withMessage('Açıklama maksimum 500 karakter olabilir')
-    .customSanitizer(sanitizeHtml),
   
   body('displayOrder')
     .optional()
@@ -208,13 +193,11 @@ exports.updateCategoryValidation = [
     .optional()
     .trim()
     .isLength({ min: 2, max: 100 }).withMessage('Kategori adı 2-100 karakter olmalıdır')
-    .customSanitizer(sanitizeHtml),
   
   body('description')
     .optional()
     .trim()
     .isLength({ max: 500 }).withMessage('Açıklama maksimum 500 karakter olabilir')
-    .customSanitizer(sanitizeHtml),
   
   body('displayOrder')
     .optional()
@@ -235,13 +218,11 @@ exports.createProductValidation = [
     .trim()
     .notEmpty().withMessage('Ürün adı gereklidir')
     .isLength({ min: 2, max: 100 }).withMessage('Ürün adı 2-100 karakter olmalıdır')
-    .customSanitizer(sanitizeHtml),
   
   body('description')
     .optional()
     .trim()
     .isLength({ max: 1000 }).withMessage('Açıklama maksimum 1000 karakter olabilir')
-    .customSanitizer(sanitizeHtml),
   
   body('basePrice')
     .optional({ nullable: true })
@@ -254,7 +235,6 @@ exports.createProductValidation = [
   body('imageUrl')
     .optional()
     .trim()
-    .customSanitizer(sanitizeUrl),
   
   body('isActive')
     .optional()
@@ -271,13 +251,11 @@ exports.updateProductValidation = [
     .optional()
     .trim()
     .isLength({ min: 2, max: 100 }).withMessage('Ürün adı 2-100 karakter olmalıdır')
-    .customSanitizer(sanitizeHtml),
   
   body('description')
     .optional()
     .trim()
     .isLength({ max: 1000 }).withMessage('Açıklama maksimum 1000 karakter olabilir')
-    .customSanitizer(sanitizeHtml),
   
   body('basePrice')
     .optional()
@@ -290,7 +268,6 @@ exports.updateProductValidation = [
   body('imageUrl')
     .optional()
     .trim()
-    .customSanitizer(sanitizeUrl),
   
   body('isActive')
     .optional()
@@ -307,20 +284,17 @@ exports.updateSettingsValidation = [
     .optional()
     .trim()
     .isLength({ min: 2, max: 100 }).withMessage('Site adı 2-100 karakter olmalıdır')
-    .customSanitizer(sanitizeHtml),
   
   body('siteDescription')
     .optional()
     .trim()
     .isLength({ max: 500 }).withMessage('Açıklama maksimum 500 karakter olabilir')
-    .customSanitizer(sanitizeHtml),
   
   body('supportEmail')
     .optional()
     .trim()
     .isEmail().withMessage('Geçerli bir email adresi girin')
     .normalizeEmail()
-    .customSanitizer(sanitizeEmail),
   
   body('maxRestaurantsPerUser')
     .optional()
@@ -360,7 +334,6 @@ exports.createPlanValidation = [
     .trim()
     .notEmpty().withMessage('Plan adı gereklidir')
     .isLength({ min: 2, max: 50 }).withMessage('Plan adı 2-50 karakter olmalıdır')
-    .customSanitizer(sanitizeHtml),
   
   body('type')
     .notEmpty().withMessage('Plan tipi gereklidir')
@@ -374,7 +347,6 @@ exports.createPlanValidation = [
     .optional()
     .trim()
     .isLength({ max: 500 }).withMessage('Açıklama maksimum 500 karakter olabilir')
-    .customSanitizer(sanitizeHtml),
   
   body('maxRestaurants')
     .notEmpty().withMessage('Maksimum restoran sayısı gereklidir')
@@ -399,7 +371,6 @@ exports.createTableValidation = [
     .trim()
     .notEmpty().withMessage('Masa numarası gereklidir')
     .isLength({ min: 1, max: 20 }).withMessage('Masa numarası 1-20 karakter olmalıdır')
-    .customSanitizer(sanitizeHtml),
   
   body('capacity')
     .optional()
