@@ -244,7 +244,7 @@ exports.createProductValidation = [
     .customSanitizer(sanitizeHtml),
   
   body('basePrice')
-    .notEmpty().withMessage('Fiyat gereklidir')
+    .optional({ nullable: true })
     .isFloat({ min: 0 }).withMessage('Fiyat 0 veya daha büyük olmalıdır'),
   
   body('categoryId')
@@ -279,7 +279,7 @@ exports.updateProductValidation = [
     .isLength({ max: 1000 }).withMessage('Açıklama maksimum 1000 karakter olabilir')
     .customSanitizer(sanitizeHtml),
   
-  body('price')
+  body('basePrice')
     .optional()
     .isFloat({ min: 0 }).withMessage('Fiyat 0 veya daha büyük olmalıdır'),
   
