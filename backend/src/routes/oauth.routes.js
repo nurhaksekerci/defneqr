@@ -9,6 +9,14 @@ const oauthController = require('../controllers/oauth.controller');
  * @access  Public
  */
 router.get('/google', 
+  (req, res, next) => {
+    console.log('========================================');
+    console.log('🚀 STEP 1: Google OAuth Başlatılıyor');
+    console.log('   Request from:', req.get('origin') || req.get('referer'));
+    console.log('   Redirect URI:', process.env.GOOGLE_CALLBACK_URL);
+    console.log('========================================');
+    next();
+  },
   passport.authenticate('google', { 
     scope: ['profile', 'email'],
     session: false 
@@ -22,24 +30,48 @@ router.get('/google',
  */
 router.get('/google/callback',
   (req, res, next) => {
-    console.log('🔍 OAuth Callback Debug:');
-    console.log('   Callback URL:', process.env.GOOGLE_CALLBACK_URL);
-    console.log('   Client ID:', process.env.GOOGLE_CLIENT_ID?.substring(0, 30) + '...');
-    console.log('   Code received:', req.query.code?.substring(0, 20) + '...');
-    console.log('   Full URL:', req.protocol + '://' + req.get('host') + req.originalUrl);
+    console.log('========================================');
+    console.log('🔍 STEP 2: Google Callback Alındı');
+    console.log('   Time:', new Date().toISOString());
+    console.log('   Callback URL (ENV):', process.env.GOOGLE_CALLBACK_URL);
+    console.log('   Client ID:', process.env.GOOGLE_CLIENT_ID?.substring(0, 35) + '...');
+    console.log('   Code received:', req.query.code?.substring(0, 30) + '...');
+    console.log('   Code length:', req.query.code?.length);
+    console.log('   Full request URL:', req.protocol + '://' + req.get('host') + req.originalUrl);
+    console.log('   Request method:', req.method);
+    console.log('   User agent:', req.get('user-agent')?.substring(0, 50));
+    console.log('========================================');
     
+    console.log('🔑 STEP 3: Passport Authentication Başlatılıyor...');
     passport.authenticate('google', { session: false }, (err, user, info) => {
+      console.log('========================================');
+      console.log('📨 STEP 4: Passport Authentication Sonucu');
+      
       if (err) {
-        console.error('❌ Passport authentication error:', err.message);
+        console.error('❌ HATA VAR!');
+        console.error('   Error message:', err.message);
         console.error('   Error code:', err.code);
         console.error('   Error type:', err.name);
+        console.error('   Error stack:', err.stack?.split('\n').slice(0, 3).join('\n'));
+        console.log('   Redirect ediliyor: /auth/login?error=google_auth_failed');
+        console.log('========================================');
         return res.redirect(`${process.env.FRONTEND_URL}/auth/login?error=google_auth_failed&detail=${err.code}`);
       }
+      
       if (!user) {
-        console.error('❌ No user returned from passport');
+        console.error('❌ User bulunamadı!');
+        console.error('   Info:', info);
+        console.log('   Redirect ediliyor: /auth/login?error=google_auth_failed');
+        console.log('========================================');
         return res.redirect(`${process.env.FRONTEND_URL}/auth/login?error=google_auth_failed`);
       }
-      console.log('✅ OAuth successful, user:', user.email);
+      
+      console.log('✅ BAŞARILI!');
+      console.log('   User ID:', user.id);
+      console.log('   User Email:', user.email);
+      console.log('   Next: Token generation...');
+      console.log('========================================');
+      
       req.user = user;
       next();
     })(req, res, next);

@@ -46,54 +46,83 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       googleConfig,
       async (accessToken, refreshToken, profile, done) => {
         try {
-          console.log('✅ Google OAuth başarılı! Profile alındı:', profile.id);
+          console.log('========================================');
+          console.log('🎉 STEP 5: Google Token Exchange Başarılı!');
+          console.log('   Access Token received:', accessToken?.substring(0, 30) + '...');
+          console.log('   Profile ID:', profile.id);
+          console.log('   Display Name:', profile.displayName);
+          console.log('   Emails:', JSON.stringify(profile.emails));
+          console.log('========================================');
           
           // Google profilinden email al
           const email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
           
           if (!email) {
+            console.error('❌ Email bulunamadı!');
             return done(new Error('Google hesabından email alınamadı'), null);
           }
 
+          console.log('📧 STEP 6: Email alındı:', email);
+          console.log('🔍 STEP 7: Veritabanında kullanıcı aranıyor...');
+          
           // Kullanıcı zaten var mı kontrol et
           let user = await prisma.user.findUnique({
             where: { googleId: profile.id }
           });
+          
+          console.log('   GoogleId ile arama sonucu:', user ? 'BULUNDU' : 'BULUNAMADI');
 
           // Eğer googleId ile bulunamazsa, email ile kontrol et
           if (!user) {
+            console.log('   Email ile aranıyor:', email);
             user = await prisma.user.findUnique({
               where: { email }
             });
 
             // Email ile kullanıcı varsa, googleId'yi ekle
             if (user) {
+              console.log('✅ Email ile bulundu! GoogleId ekleniyor...');
               user = await prisma.user.update({
                 where: { id: user.id },
                 data: { googleId: profile.id }
               });
+              console.log('   GoogleId güncellendi:', user.id);
             }
           }
 
           // Hiç kullanıcı yoksa, yeni kullanıcı oluştur
           if (!user) {
             const displayName = profile.displayName || email.split('@')[0];
+            console.log('🆕 STEP 8: Yeni kullanıcı oluşturuluyor...');
+            console.log('   Email:', email);
+            console.log('   Full Name:', displayName);
+            console.log('   GoogleId:', profile.id);
             
             user = await prisma.user.create({
               data: {
                 googleId: profile.id,
                 email: email,
                 fullName: displayName,
-                username: null, // Google OAuth kullanıcıları için username opsiyonel
-                password: null, // Google OAuth kullanıcıları için şifre yok
+                username: null,
+                password: null,
                 role: 'RESTAURANT_OWNER'
               }
             });
+            console.log('✅ Kullanıcı oluşturuldu! ID:', user.id);
           }
 
+          console.log('========================================');
+          console.log('✅ STEP 9: Passport Strategy Tamamlandı');
+          console.log('   User:', user.email, '(ID:', user.id + ')');
+          console.log('========================================');
           return done(null, user);
         } catch (error) {
-          console.error('Google OAuth error:', error);
+          console.error('========================================');
+          console.error('❌ PASSPORT STRATEGY ERROR!');
+          console.error('   Error message:', error.message);
+          console.error('   Error name:', error.name);
+          console.error('   Error stack:', error.stack?.split('\n').slice(0, 5).join('\n'));
+          console.error('========================================');
           return done(error, null);
         }
       }

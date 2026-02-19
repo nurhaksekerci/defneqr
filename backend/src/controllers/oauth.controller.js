@@ -7,13 +7,21 @@ const { recordUserRegistration, recordLoginAttempt } = require('../utils/metrics
  */
 exports.googleCallback = async (req, res) => {
   try {
+    console.log('========================================');
+    console.log('🎯 STEP 10: OAuth Controller - Token Generation');
+    
     // Kullanıcı passport tarafından req.user'a eklendi
     const user = req.user;
 
     if (!user) {
+      console.error('❌ req.user boş!');
+      console.log('========================================');
       return res.redirect(`${process.env.FRONTEND_URL}/auth/login?error=authentication_failed`);
     }
 
+    console.log('   User:', user.email, '(ID:', user.id + ')');
+    console.log('🔐 Token üretiliyor...');
+    
     // Generate tokens
     const accessToken = tokenManager.generateAccessToken(user.id);
     const { token: refreshToken } = await tokenManager.generateRefreshToken(
@@ -22,18 +30,25 @@ exports.googleCallback = async (req, res) => {
       req.ip
     );
 
-    // Record metrics (Google OAuth login/register)
-    // Note: We treat all Google OAuth authentications as login success
-    // New user creation is handled in passport strategy
+    console.log('✅ Token\'lar oluşturuldu');
+    console.log('   Access Token length:', accessToken?.length);
+    console.log('   Refresh Token length:', refreshToken?.length);
+
+    // Record metrics
     recordLoginAttempt('success', 'google');
 
+    const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
+    console.log('🔄 STEP 11: Frontend\'e Redirect Ediliyor');
+    console.log('   Redirect URL:', redirectUrl.substring(0, 100) + '...');
+    console.log('========================================');
+    
     // Kullanıcıyı frontend'e yönlendir ve token'ları query parameter olarak gönder
-    // Frontend bu token'ları alıp localStorage'a kaydedecek
-    res.redirect(
-      `${process.env.FRONTEND_URL}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`
-    );
+    res.redirect(redirectUrl);
   } catch (error) {
-    console.error('Google callback error:', error);
+    console.error('========================================');
+    console.error('❌ Controller Error:', error.message);
+    console.error('   Stack:', error.stack?.split('\n').slice(0, 3).join('\n'));
+    console.error('========================================');
     res.redirect(`${process.env.FRONTEND_URL}/auth/login?error=authentication_failed`);
   }
 };
