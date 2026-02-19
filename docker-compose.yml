@@ -53,7 +53,7 @@ services:
       # Logging
       FILE_LOGGING: ${FILE_LOGGING:-false}
     volumes:
-      - ./backend/uploads:/app/uploads
+      - ./backend/uploads:/app/public/uploads
       - ./backend/logs:/app/logs
     ports:
       - "127.0.0.1:5000:5000"
