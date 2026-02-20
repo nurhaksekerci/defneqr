@@ -21,17 +21,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ menuItems, isOpen, onClose }) 
 
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* Mobile Overlay - Header'ın altından başlar */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed top-16 left-0 right-0 bottom-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - Header'ın altından başlar */}
       <aside className={cn(
-        "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-md h-full overflow-y-auto transition-transform duration-300 ease-in-out",
+        "fixed lg:static top-16 lg:top-0 bottom-0 left-0 z-50 w-64 bg-white shadow-md overflow-y-auto transition-transform duration-300 ease-in-out",
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
         {/* Mobile Close Button */}
