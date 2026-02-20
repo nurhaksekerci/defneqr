@@ -276,10 +276,3 @@ exports.cancelSubscription = async (req, res, next) => {
     next(error);
   }
 };
-
-module.exports = {
-  getMySubscription,
-  getMySubscriptions,
-  createSubscription,
-  cancelSubscription
-};
