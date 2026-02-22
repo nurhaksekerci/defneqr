@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Modal } from '@/components/ui/Modal';
 import api from '@/lib/api';
 import { formatCurrency } from '@/lib/utils';
 import { getImageUrl } from '@/lib/imageHelper';
@@ -411,13 +412,16 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {showAddForm && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>{editingProduct ? 'Ürünü Düzenle' : 'Yeni Ürün Ekle'}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+      <Modal
+        isOpen={showAddForm}
+        onClose={() => {
+          setShowAddForm(false);
+          setEditingProduct(null);
+        }}
+        title={editingProduct ? 'Ürünü Düzenle' : 'Yeni Ürün Ekle'}
+        size="lg"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
               <Input
                 label="Ürün Adı"
                 type="text"
@@ -571,9 +575,7 @@ export default function ProductsPage() {
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
-      )}
+      </Modal>
 
       {/* Bulk Price Update Button */}
       {hasChanges && (

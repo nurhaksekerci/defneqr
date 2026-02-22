@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Modal } from '@/components/ui/Modal';
 import api from '@/lib/api';
 
 interface Category {
@@ -264,62 +265,62 @@ export default function CategoriesPage() {
         </div>
       )}
 
-      {showAddForm && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>{editingCategory ? 'Kategoriyi Düzenle' : 'Yeni Kategori Ekle'}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                label="Kategori Adı"
-                type="text"
-                placeholder="Örn: Sıcak İçecekler"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
+      <Modal
+        isOpen={showAddForm}
+        onClose={() => {
+          setShowAddForm(false);
+          setEditingCategory(null);
+        }}
+        title={editingCategory ? 'Kategoriyi Düzenle' : 'Yeni Kategori Ekle'}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            label="Kategori Adı"
+            type="text"
+            placeholder="Örn: Sıcak İçecekler"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+          />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Açıklama
-                </label>
-                <textarea
-                  placeholder="Kategori açıklaması..."
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-gray-900 bg-white placeholder:text-gray-400"
-                  rows={3}
-                />
-              </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Açıklama
+            </label>
+            <textarea
+              placeholder="Kategori açıklaması..."
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-gray-900 bg-white placeholder:text-gray-400"
+              rows={3}
+            />
+          </div>
 
-              <Input
-                label="Sıralama"
-                type="number"
-                value={formData.order}
-                onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                placeholder="0"
-              />
+          <Input
+            label="Sıralama"
+            type="number"
+            value={formData.order}
+            onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+            placeholder="0"
+          />
 
-              <div className="flex gap-3 pt-4">
-                <Button type="submit" isLoading={isSaving}>
-                  {editingCategory ? 'Güncelle' : 'Ekle'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => {
-                    setShowAddForm(false);
-                    setEditingCategory(null);
-                  }}
-                >
-                  İptal
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
+          <div className="flex gap-3 pt-4">
+            <Button type="submit" isLoading={isSaving}>
+              {editingCategory ? 'Güncelle' : 'Ekle'}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setShowAddForm(false);
+                setEditingCategory(null);
+              }}
+            >
+              İptal
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       <Card>
         <CardHeader>
