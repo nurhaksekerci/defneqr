@@ -1,5 +1,6 @@
 const prisma = require('../config/database');
 const { getUserPlan } = require('../middleware/planLimit.middleware');
+const { createCommission } = require('../middleware/referral.middleware');
 
 /**
  * Get user's current subscription and plan limits
@@ -219,6 +220,14 @@ exports.createSubscription = async (req, res, next) => {
         }
       }
     });
+
+    // Affiliate komisyon oluştur (varsa)
+    try {
+      await createCommission(userId, subscription.id, subscription.amount);
+    } catch (commissionError) {
+      console.error('❌ Commission creation failed:', commissionError);
+      // Komisyon hatası abonelik oluşturmayı engellemez
+    }
 
     res.status(201).json({
       success: true,

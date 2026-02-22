@@ -5,6 +5,7 @@ const prisma = require('../config/database');
 const { validatePassword } = require('../utils/passwordValidator');
 const tokenManager = require('../utils/tokenManager');
 const { recordUserRegistration, recordLoginAttempt } = require('../utils/metrics');
+const { processReferral } = require('../middleware/referral.middleware');
 
 // Kayıt olma
 exports.register = async (req, res, next) => {
@@ -78,6 +79,12 @@ exports.register = async (req, res, next) => {
 
     // Record metrics
     recordUserRegistration('email');
+
+    // Referral tracking (cookie'den)
+    const referralCode = req.cookies?.referral_code;
+    if (referralCode) {
+      await processReferral(referralCode, user.id, req.ip, req.headers['user-agent']);
+    }
 
     res.status(201).json({
       success: true,

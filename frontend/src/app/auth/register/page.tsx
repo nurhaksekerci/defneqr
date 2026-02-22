@@ -1,15 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { authService } from '@/lib/auth';
 import api from '@/lib/api';
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get('ref');
+  const planId = searchParams.get('plan');
+  
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -95,8 +99,12 @@ export default function RegisterPage() {
       });
 
       if (response.success) {
-        // Kayıt başarılı, restoran oluşturma sayfasına yönlendir
-        router.push('/dashboard/restaurant/create');
+        // Plan seçilmişse checkout'a, yoksa restoran oluşturmaya yönlendir
+        if (planId) {
+          router.push(`/subscription/checkout?planId=${planId}`);
+        } else {
+          router.push('/dashboard/restaurant/create');
+        }
       }
     } catch (err: any) {
       setErrors({
@@ -114,6 +122,22 @@ export default function RegisterPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Defne Qr</h1>
           <p className="text-gray-600">Yeni hesap oluştur</p>
         </div>
+
+        {referralCode && (
+          <div className="mb-4 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">🎁</div>
+              <div>
+                <p className="text-sm font-semibold text-green-900">
+                  Özel Davetiye ile Kaydoluyorsunuz!
+                </p>
+                <p className="text-xs text-green-700 mt-1">
+                  Referans Kodu: <code className="font-bold">{referralCode}</code>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {errors.submit && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
@@ -256,5 +280,17 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-gray-500">Yükleniyor...</div>
+      </div>
+    }>
+      <RegisterForm />
+    </Suspense>
   );
 }

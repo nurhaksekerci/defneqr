@@ -68,6 +68,9 @@ model User {
   subscriptions    Subscription[]
   passwordResets   PasswordReset[]
   refreshTokens    RefreshToken[]
+  promoCodeUsages  PromoCodeUsage[]
+  affiliatePartner AffiliatePartner?
+  referrals        Referral[]
   
   @@index([role])
   @@index([isDeleted])
@@ -499,4 +502,235 @@ model TokenBlacklist {
   @@map("token_blacklist")
   @@index([token])
   @@index([expiresAt])
+}
+
+// Promosyon Kodları
+enum PromoCodeType {
+  PERCENTAGE  // Yüzde indirim
+  FIXED       // Sabit tutar indirim
+  FREE_TRIAL  // Ücretsiz deneme süresi
+}
+
+model PromoCode {
+  id            String        @id @default(uuid())
+  code          String        @unique
+  type          PromoCodeType
+  
+  // İndirim değeri
+  discountValue Float         // Yüzde veya sabit tutar
+  
+  // Kullanım limitleri
+  maxUses       Int?          // Maksimum kullanım sayısı (null = sınırsız)
+  usedCount     Int           @default(0)
+  
+  // Geçerlilik
+  validFrom     DateTime      @default(now())
+  validUntil    DateTime?     // null = süresiz
+  
+  // Uygulanabilir planlar (null = tüm planlar)
+  applicablePlans Json?       // ["plan-id-1", "plan-id-2"]
+  
+  // Durum
+  isActive      Boolean       @default(true)
+  
+  // Açıklama
+  description   String?
+  
+  // Audit
+  createdBy     String?       // Admin user ID
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  // İlişkiler
+  usages        PromoCodeUsage[]
+  
+  @@map("promo_codes")
+  @@index([code])
+  @@index([isActive])
+  @@index([validFrom, validUntil])
+}
+
+// Promosyon Kodu Kullanımları
+model PromoCodeUsage {
+  id            String    @id @default(uuid())
+  promoCodeId   String
+  promoCode     PromoCode @relation(fields: [promoCodeId], references: [id])
+  
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  
+  subscriptionId String?
+  
+  // İndirim detayları
+  discountAmount Float
+  originalAmount Float
+  finalAmount    Float
+  
+  usedAt        DateTime  @default(now())
+  
+  @@map("promo_code_usages")
+  @@index([promoCodeId])
+  @@index([userId])
+  @@index([usedAt])
+}
+
+// Affiliate Partner Durumları
+enum AffiliateStatus {
+  PENDING   // Onay bekliyor
+  ACTIVE    // Aktif
+  SUSPENDED // Askıya alınmış
+  BANNED    // Yasaklanmış
+}
+
+// Affiliate Partners (Referans Partnerleri)
+model AffiliatePartner {
+  id                String          @id @default(uuid())
+  userId            String          @unique
+  user              User            @relation(fields: [userId], references: [id])
+  
+  // Referral Code (benzersiz)
+  referralCode      String          @unique
+  
+  // İstatistikler
+  totalReferrals    Int             @default(0)
+  totalEarnings     Float           @default(0)
+  pendingEarnings   Float           @default(0)
+  paidEarnings      Float           @default(0)
+  
+  // Durum
+  status            AffiliateStatus @default(PENDING)
+  
+  // Banka bilgileri (ödeme için)
+  bankName          String?
+  accountHolder     String?
+  iban              String?
+  
+  // Audit
+  approvedBy        String?         // Admin user ID
+  approvedAt        DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  // İlişkiler
+  referrals         Referral[]
+  commissions       AffiliateCommission[]
+  payouts           AffiliatePayout[]
+  
+  @@map("affiliate_partners")
+  @@index([userId])
+  @@index([referralCode])
+  @@index([status])
+}
+
+// Referanslar (Affiliate ile kayıt olan kullanıcılar)
+model Referral {
+  id                String           @id @default(uuid())
+  affiliateId       String
+  affiliate         AffiliatePartner @relation(fields: [affiliateId], references: [id])
+  
+  referredUserId    String
+  referredUser      User             @relation(fields: [referredUserId], references: [id])
+  
+  // Referral bilgileri
+  ipAddress         String?
+  userAgent         String?
+  
+  // Conversion tracking
+  hasSubscribed     Boolean          @default(false)
+  firstSubscription DateTime?
+  
+  createdAt         DateTime         @default(now())
+  
+  @@map("referrals")
+  @@index([affiliateId])
+  @@index([referredUserId])
+  @@index([createdAt])
+}
+
+// Affiliate Komisyonları
+model AffiliateCommission {
+  id              String           @id @default(uuid())
+  affiliateId     String
+  affiliate       AffiliatePartner @relation(fields: [affiliateId], references: [id])
+  
+  referredUserId  String
+  subscriptionId  String
+  
+  // Komisyon detayları
+  amount          Float
+  percentage      Float            // Komisyon yüzdesi (kaydedildiği andaki)
+  subscriptionAmount Float         // Abonelik tutarı
+  
+  // Ödeme durumu
+  isPaid          Boolean          @default(false)
+  paidAt          DateTime?
+  payoutId        String?
+  
+  createdAt       DateTime         @default(now())
+  
+  @@map("affiliate_commissions")
+  @@index([affiliateId])
+  @@index([referredUserId])
+  @@index([isPaid])
+  @@index([createdAt])
+}
+
+// Affiliate Ödemeleri
+model AffiliatePayout {
+  id              String           @id @default(uuid())
+  affiliateId     String
+  affiliate       AffiliatePartner @relation(fields: [affiliateId], references: [id])
+  
+  // Ödeme detayları
+  amount          Float
+  commissionIds   Json             // Hangi komisyonlar ödendi
+  
+  // Ödeme yöntemi
+  method          String           // BANK_TRANSFER, PAYPAL, etc.
+  
+  // Banka bilgileri (anlık kayıt)
+  bankName        String?
+  accountHolder   String?
+  iban            String?
+  
+  // İşlem bilgileri
+  transactionId   String?
+  notes           String?
+  
+  // Durum
+  status          String           @default("PENDING") // PENDING, COMPLETED, FAILED
+  
+  // Audit
+  processedBy     String?          // Admin user ID
+  processedAt     DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  @@map("affiliate_payouts")
+  @@index([affiliateId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Affiliate Ayarları (Sistem geneli)
+model AffiliateSettings {
+  id                    String   @id @default(uuid())
+  
+  // Komisyon oranı (%)
+  commissionRate        Float    @default(10)
+  
+  // Minimum ödeme tutarı
+  minimumPayout         Float    @default(100)
+  
+  // Özellikler
+  isEnabled             Boolean  @default(true)
+  requireApproval       Boolean  @default(true)
+  
+  // Cookie süresi (gün)
+  cookieDuration        Int      @default(30)
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@map("affiliate_settings")
 }

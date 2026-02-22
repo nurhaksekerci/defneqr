@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const tokenManager = require('../utils/tokenManager');
 const { recordUserRegistration, recordLoginAttempt } = require('../utils/metrics');
+const { processReferral } = require('../middleware/referral.middleware');
 
 /**
  * Google OAuth başarılı callback
@@ -36,6 +37,12 @@ exports.googleCallback = async (req, res) => {
 
     // Record metrics
     recordLoginAttempt('success', 'google');
+
+    // Referral tracking (cookie'den) - Yeni kullanıcı ise
+    const referralCode = req.cookies?.referral_code;
+    if (referralCode) {
+      await processReferral(referralCode, user.id, req.ip, req.headers['user-agent']);
+    }
 
     const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
     console.log('🔄 STEP 11: Frontend\'e Redirect Ediliyor');

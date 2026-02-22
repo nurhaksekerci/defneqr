@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const { authenticate } = require('../middleware/auth.middleware');
+const { trackReferral } = require('../middleware/referral.middleware');
 const {
   registerValidation,
   loginValidation,
@@ -10,8 +11,8 @@ const {
   resetPasswordValidation
 } = require('../middleware/validation.middleware');
 
-// POST /api/auth/register
-router.post('/register', registerValidation, authController.register);
+// POST /api/auth/register (trackReferral middleware referral code'u cookie'ye kaydeder)
+router.post('/register', trackReferral, registerValidation, authController.register);
 
 // POST /api/auth/login
 router.post('/login', loginValidation, authController.login);

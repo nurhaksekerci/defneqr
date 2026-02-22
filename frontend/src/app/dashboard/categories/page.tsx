@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
+import { Toast, useToast } from '@/components/ui/Toast';
 import api from '@/lib/api';
 
 interface Category {
@@ -33,6 +34,7 @@ export default function CategoriesPage() {
     order: 0
   });
   const [isSaving, setIsSaving] = useState(false);
+  const { toast, showToast, closeToast } = useToast();
 
   useEffect(() => {
     loadRestaurants();
@@ -169,7 +171,7 @@ export default function CategoriesPage() {
       setShowAddForm(false);
       setEditingCategory(null);
       loadCategories();
-      alert('Kategori başarıyla kaydedildi!');
+      showToast('success', 'Başarılı', 'Kategori başarıyla kaydedildi!');
     } catch (error: any) {
       console.error('Failed to save category:', error);
       
@@ -179,19 +181,19 @@ export default function CategoriesPage() {
         const message = errorData?.message || 'Plan limitinize ulaştınız!';
         const limitInfo = errorData?.data;
         
-        let alertMessage = `⚠️ ${message}`;
-        
-        if (limitInfo) {
-          alertMessage += `\n\n📊 Limit Bilgileri:`;
-          alertMessage += `\n• Kullanılan: ${limitInfo.currentCount}/${limitInfo.maxCount}`;
-          alertMessage += `\n• Plan: ${limitInfo.planName}`;
-          alertMessage += `\n\n💡 Daha fazla kategori eklemek için planınızı yükseltin.`;
-        }
-        
-        alert(alertMessage);
+        showToast(
+          'warning',
+          'Plan Limiti Aşıldı',
+          message,
+          limitInfo ? {
+            currentCount: limitInfo.currentCount,
+            maxCount: limitInfo.maxCount,
+            planName: limitInfo.planName
+          } : undefined
+        );
       } else {
         const errorMessage = error.response?.data?.message || 'Kategori kaydedilemedi. Lütfen tekrar deneyin.';
-        alert(errorMessage);
+        showToast('error', 'Hata', errorMessage);
       }
     } finally {
       setIsSaving(false);
@@ -671,6 +673,17 @@ function GlobalCatalogModal({
           )}
         </CardContent>
       </Card>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          type={toast.type}
+          title={toast.title}
+          message={toast.message}
+          details={toast.details}
+          onClose={closeToast}
+        />
+      )}
     </div>
   );
 }

@@ -534,16 +534,23 @@ export default function Home() {
                       >
                         Hesapla
                       </button>
+                    ) : plan.type === 'FREE' ? (
+                      <Link
+                        href={user ? '/dashboard' : '/auth/register'}
+                        className="block w-full py-3 px-6 text-center font-semibold rounded-xl transition-all bg-gray-100 text-gray-900 hover:bg-gray-200"
+                      >
+                        Hemen Başla
+                      </Link>
                     ) : (
                       <Link
-                        href="/auth/register"
+                        href={user ? `/subscription/checkout?planId=${plan.id}` : `/auth/register?plan=${plan.id}`}
                         className={`block w-full py-3 px-6 text-center font-semibold rounded-xl transition-all ${
                           isPremium
                             ? 'bg-white text-primary-700 hover:bg-gray-50 shadow-lg'
                             : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                         }`}
                       >
-                        {plan.type === 'FREE' ? 'Hemen Başla' : "Premium'a Geç"}
+                        Premium'a Geç
                       </Link>
                     )}
                   </div>
@@ -635,14 +642,19 @@ export default function Home() {
 
               <div className="text-center">
                 <Link
-                  href="/auth/register"
+                  href={user 
+                    ? `/subscription/checkout?planId=${selectedPlan.id}&restaurantCount=${restaurantCount}` 
+                    : `/auth/register?plan=${selectedPlan.id}&restaurantCount=${restaurantCount}`
+                  }
                   className="block w-full py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all shadow-lg"
                 >
-                  Hemen Kayıt Ol
+                  {user ? 'Satın Al' : 'Hemen Kayıt Ol'}
                 </Link>
-                <p className="text-xs text-gray-500 mt-3">
-                  Kayıt olduktan sonra planınızı seçebilirsiniz
-                </p>
+                {!user && (
+                  <p className="text-xs text-gray-500 mt-3">
+                    Kayıt olduktan sonra planınızı seçebilirsiniz
+                  </p>
+                )}
               </div>
             </div>
           </div>
