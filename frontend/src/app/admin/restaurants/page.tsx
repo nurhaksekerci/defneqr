@@ -67,7 +67,7 @@ export default function AdminRestaurantsPage() {
   }
 
   return (
-    <div>
+    <div className="text-gray-900">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Restoran Yönetimi</h1>
         <p className="text-gray-600">Sistemdeki tüm restoranları görüntüleyin</p>
@@ -79,7 +79,7 @@ export default function AdminRestaurantsPage() {
           placeholder="Restoran veya sahip ara..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-gray-900 placeholder:text-gray-500 bg-white"
         />
       </div>
 
@@ -107,7 +107,7 @@ export default function AdminRestaurantsPage() {
                 <tbody>
                   {filteredRestaurants.map((restaurant) => (
                     <tr key={restaurant.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4 text-gray-900">
                         <div>
                           <p className="font-medium text-gray-900">{restaurant.name}</p>
                           {restaurant.description && (
@@ -116,13 +116,13 @@ export default function AdminRestaurantsPage() {
                           <p className="text-xs text-gray-400 mt-1">/{restaurant.slug}</p>
                         </div>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4 text-gray-900">
                         <div>
-                          <p className="font-medium">{restaurant.owner.fullName}</p>
+                          <p className="font-medium text-gray-900">{restaurant.owner.fullName}</p>
                           <p className="text-sm text-gray-600">{restaurant.owner.email}</p>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-sm">
+                      <td className="py-3 px-4 text-sm text-gray-900">
                         {restaurant.address && <p>{restaurant.address}</p>}
                         {restaurant.phone && <p>{restaurant.phone}</p>}
                       </td>

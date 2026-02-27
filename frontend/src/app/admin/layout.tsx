@@ -62,7 +62,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden text-gray-900" style={{ colorScheme: 'light' }}>
       <Navbar />
       <div className="flex flex-1 overflow-hidden relative">
         {/* Hamburger Menu Button (Mobile Only) */}
@@ -81,7 +81,7 @@ export default function AdminLayout({
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />
-        <main className="flex-1 overflow-auto p-4 sm:p-6">
+        <main className="flex-1 overflow-auto p-4 sm:p-6 text-gray-900">
           {children}
         </main>
       </div>
